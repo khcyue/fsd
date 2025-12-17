@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>期現交易計算器 </title>
+    <style>
+        /* 基礎樣式 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+
+        h2 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* 頁籤導航欄樣式 */
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            flex-grow: 1;
+            padding: 12px 10px;
+            cursor: pointer;
+            background-color: #e9ecef;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 4px 4px 0 0;
+            text-align: center;
+        }
+
+        .tab-button.active {
+            background-color: #fff;
+            color: #007bff;
+            border-bottom: 3px solid #007bff;
+        }
+
+        /* 頁籤內容樣式 */
+        .tab-content {
+            display: none;
+            padding: 15px 0;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 輸入區塊樣式 */
+        .input-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group label {
+            flex: 1;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .input-group input[type="number"] {
+            flex: 2;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        /* 按鈕樣式 */
+        button.calculate-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button.calculate-btn:hover {
+            background-color: #218838;
+        }
+
+        /* 輸出結果區塊樣式 */
+        .results {
+            margin-top: 25px;
+            padding: 15px;
+            border: 1px solid #007bff;
+            border-radius: 8px;
+            background-color: #eaf3ff;
+        }
+
+        .results h4 {
+            color: #0056b3;
+            margin-top: 0;
+            border-bottom: 1px dashed #007bff;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .results p {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+        }
+
+        .results p strong {
+            font-weight: normal;
+            color: #333;
+        }
+        
+        .results p span.value {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .results .important-level .value {
+            color: #dc3545; /* 紅色標註*** */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📊 期現交易計算器</h2>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab('qi-cdp')">期CDP</button>
+            <button class="tab-button" onclick="openTab('xian-cdp')">現CDP</button>
+            <button class="tab-button" onclick="openTab('duo-huidang')">多回檔</button>
+            <button class="tab-button" onclick="openTab('kong-fantian')">空反彈</button>
+        </div>
+
+        <div id="qi-cdp" class="tab-content active">
+            <p>輸入：**開盤 O, 最高 H, 最低 L, 收盤 C**</p>
+            <div class="input-group">
+                <label for="qi-O">開盤價 (O)</label>
+                <input type="number" id="qi-O" step="0.01" value="">
+            </div>
+            <div class="input-group">
+                <label for="qi-H">最高價 (H)</label>
+                <input type="number" id="qi-H" step="0.01" value="">
+            </div>
+            <div class="input-group">
+                <label for="qi-L">最低價 (L)</label>
+                <input type="number" id="qi-L" step="0.01" value="">
+            </div>
+            <div class="input-group">
+                <label for="qi-C">收盤價 (C)</label>
+                <input type="number" id="qi-C" step="0.01" value="">
+            </div>
+            <button class="calculate-btn" onclick="calculateCdp('qi')">計算 期CDP</button>
+            <div id="qi-results" class="results">
+                <p>請輸入 O, H, L, C 值並點擊計算。</p>
+            </div>
+        </div>
+
+        <div id="xian-cdp" class="tab-content">
+            <p>輸入：**開盤 O, 最高 H, 最低 L, 收盤 C**</p>
+            <div class="input-group">
+                <label for="xian-O">開盤價 (O)</label>
+                <input type="number" id="xian-O" step="0.01" value="">
+            </div>
+            <div class="input-group">
+                <label for="xian-H">最高價 (H)</label>
+                <input type="number" id="xian-H" step="0.01" value="">
+            </div>
+            <div class="input-group">
+                <label for="xian-L">最低價 (L)</label>
+                <input type="number" id="xian-L" step="0.01" value="">
+            </div>
+            <div class="input-group">
+                <label for="xian-C">收盤價 (C)</label>
+                <input type="number" id="xian-C" step="0.01" value="">
+            </div>
+            <button class="calculate-btn" onclick="calculateCdp('xian')">計算 現CDP</button>
+            <div id="xian-results" class="results">
+                <p>請輸入 O, H, L, C 值並點擊計算。</p>
+            </div>
+        </div>
+
+        <div id="duo-huidang" class="tab-content">
+            <p>輸入：**最高 H, 最低 L**</p>
+            <div class="input-group">
+                <label for="duo-H">最高價 (H)</label>
+                <input type="number" id="duo-H" step="0.01" value="">
+            </div>
+            <div class="input-group">
+                <label for="duo-L">最低價 (L)</label>
+                <input type="number" id="duo-L" step="0.01" value="">
+            </div>
+            <button class="calculate-btn" onclick="calculateFibonacci('duo')">計算 多回檔</button>
+            <div id="duo-results" class="results">
+                <p>請輸入 H, L 值並點擊計算。</p>
+            </div>
+        </div>
+
+        <div id="kong-fantian" class="tab-content">
+            <p>輸入：**最高 H, 最低 L**</p>
+            <div class="input-group">
+                <label for="kong-H">最高價 (H)</label>
+                <input type="number" id="kong-H" step="0.01" value="">
+            </div>
+            <div class="input-group">
+                <label for="kong-L">最低價 (L)</label>
+                <input type="number" id="kong-L" step="0.01" value="">
+            </div>
+            <button class="calculate-btn" onclick="calculateFibonacci('kong')">計算 空反彈</button>
+            <div id="kong-results" class="results">
+                <p>請輸入 H, L 值並點擊計算。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 頁籤切換功能
+        function openTab(tabName) {
+            let i;
+            const tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].classList.remove("active");
+            }
+            const tabButtons = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            document.querySelector(`.tab-button[onclick*="${tabName}"]`).classList.add("active");
+        }
+
+        // *** 重要修改: 四捨五入到整數 ***
+        function roundToInteger(num) {
+            if (isNaN(num)) return '錯誤';
+            // 使用 Math.round 進行標準四捨五入到最接近的整數
+            return Math.round(num);
+        }
+
+        // CDP/現CDP 計算邏輯 (頁籤 1 & 2)
+        function calculateCdp(prefix) {
+            const O = parseFloat(document.getElementById(`${prefix}-O`).value);
+            const H = parseFloat(document.getElementById(`${prefix}-H`).value);
+            const L = parseFloat(document.getElementById(`${prefix}-L`).value);
+            const C = parseFloat(document.getElementById(`${prefix}-C`).value);
+            const resultsDiv = document.getElementById(`${prefix}-results`);
+
+            // 檢查輸入是否有效
+            if (isNaN(O) || isNaN(H) || isNaN(L) || isNaN(C)) {
+                resultsDiv.innerHTML = '<p style="color: red; font-weight: bold;">⚠️ 請輸入所有 O, H, L, C 的數值。</p>';
+                return;
+            }
+
+            // 執行計算 (所有計算結果都立即進行四捨五入到整數)
+            const CDP = roundToInteger((2 * C + H + L) / 4); 
+            
+            const quJian = roundToInteger(H - L);
+            const AH = roundToInteger(CDP + (H - L)); // AH = High Resistance (上阻力)
+            const NH = roundToInteger(2 * CDP - L);  // NH = Near High Resistance (近上阻力)
+            const NL = roundToInteger(2 * CDP - H);  // NL = Near Low Support (近下支撐)
+            const AL = roundToInteger(CDP - (H - L)); // AL = Low Support (下支撐)
+            const halfM = roundToInteger((H + L) * 0.5);
+            const duoKong = roundToInteger((H + L + C) / 3);
+            const MValue = roundToInteger(Math.sqrt(O * C));
+
+
+            // 輸出結果
+            resultsDiv.innerHTML = `
+                <h4>計算結果 (${prefix.toUpperCase()}CDP)</h4>
+                <p><strong>區間 (H-L):</strong> <span class="value">${quJian}</span></p>
+                <p style="font-weight: bold; color: #0056b3;"><strong>CDP (中央樞紐):</strong> <span class="value">${CDP}</span></p>
+                <hr style="border-color: #cce0ff; margin: 10px 0;">
+                <p><strong>AH (上阻力):</strong> <span class="value">${AH}</span></p>
+                <p><strong>NH (近上阻力):</strong> <span class="value">${NH}</span></p>
+                <p><strong>NL (近下支撐):</strong> <span class="value">${NL}</span></p>
+                <p><strong>AL (下支撐):</strong> <span class="value">${AL}</span></p>
+                <hr style="border-color: #cce0ff; margin: 10px 0;">
+                <p><strong>1/2M ((H+L)/2):</strong> <span class="value">${halfM}</span></p>
+                <p><strong>多空 ((H+L+C)/3):</strong> <span class="value">${duoKong}</span></p>
+                <p><strong>M值 (sqrt(O*C)):</strong> <span class="value">${MValue}</span></p>
+            `;
+        }
+
+        // 多回檔/空反彈 計算邏輯 (頁籤 3 & 4) - 斐波那契回撤/反彈
+        function calculateFibonacci(type) {
+            const H = parseFloat(document.getElementById(`${type}-H`).value);
+            const L = parseFloat(document.getElementById(`${type}-L`).value);
+            const resultsDiv = document.getElementById(`${type}-results`);
+
+            // 檢查輸入是否有效
+            if (isNaN(H) || isNaN(L)) {
+                resultsDiv.innerHTML = '<p style="color: red; font-weight: bold;">⚠️ 請輸入 H, L 的數值。</p>';
+                return;
+            }
+            if (H < L) {
+                resultsDiv.innerHTML = '<p style="color: red; font-weight: bold;">⚠️ 最高價 (H) 不得低於最低價 (L)。</p>';
+                return;
+            }
+
+            // 斐波那契係數及其他係數
+            const ratios = [
+                { r: 0.236, label: '0.236' }, 
+                { r: 0.25, label: '0.25' }, 
+                { r: 0.382, label: '0.382***' }, 
+                { r: 0.5, label: '0.5***' }, 
+                { r: 0.618, label: '0.618***' }, 
+                { r: 0.75, label: '0.75' }, 
+                { r: 0.764, label: '0.764***' }
+            ];
+            
+            let resultsHTML = `<h4>計算結果 (${type === 'duo' ? '多回檔' : '空反彈'})</h4>`;
+            const range = H - L;
+
+            if (type === 'duo') {
+                // 多回檔 (從 H 往下尋找支撐)
+                const huiDang = roundToInteger(L - H); 
+                resultsHTML += `<p><strong>回檔 (L-H):</strong> <span class="value">${huiDang}</span></p>`;
+                
+                ratios.forEach(item => {
+                    // 公式: H - (H - L) * ratio
+                    const value = roundToInteger(H - range * item.r);
+                    const isImportant = item.label.includes('***') ? ' important-level' : '';
+                    resultsHTML += `<p class="${isImportant}"><strong>${item.label}:</strong> <span class="value">${value}</span></p>`;
+                });
+            } else if (type === 'kong') {
+                // 空反彈 (從 L 往上尋找阻力)
+                const fanTan = roundToInteger(H - L); 
+                resultsHTML += `<p><strong>反彈 (H-L):</strong> <span class="value">${fanTan}</span></p>`;
+                
+                ratios.forEach(item => {
+                    // 公式: L + (H - L) * ratio
+                    const value = roundToInteger(L + range * item.r);
+                    const isImportant = item.label.includes('***') ? ' important-level' : '';
+                    resultsHTML += `<p class="${isImportant}"><strong>${item.label}:</strong> <span class="value">${value}</span></p>`;
+                });
+            }
+
+            resultsDiv.innerHTML = resultsHTML;
+        }
+
+        // 頁面加載後，預設開啟第一個頁籤
+        document.addEventListener('DOMContentLoaded', () => {
+            openTab('qi-cdp');
+        });
+    </script>
+
+</body>
+</html>
